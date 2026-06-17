@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirSense</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { margin: 0; font-family: 'Inter', system-ui, sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const Icon = ({ name, size = 24, className = "" }) => {
+            const ref = useRef(null);
+            useEffect(() => {
+                if (ref.current) {
+                    ref.current.innerHTML = `<i data-lucide="${name}"></i>`;
+                    if (window.lucide) {
+                        window.lucide.createIcons({ 
+                            root: ref.current,
+                            attrs: { width: size, height: size }
+                        });
+                    }
+                }
+            }, [name, size]);
+            return <span ref={ref} className={className} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'inherit' }} />;
+        };
+
+        const Activity = (p) => <Icon name="activity" {...p} />;
+        const Wind = (p) => <Icon name="wind" {...p} />;
+        const Thermometer = (p) => <Icon name="thermometer" {...p} />;
+        const Droplets = (p) => <Icon name="droplets" {...p} />;
+        const AlertTriangle = (p) => <Icon name="alert-triangle" {...p} />;
+        const CheckCircle2 = (p) => <Icon name="check-circle-2" {...p} />;
+        const Info = (p) => <Icon name="info" {...p} />;
+        const Battery = (p) => <Icon name="battery" {...p} />;
+        const BatteryMedium = (p) => <Icon name="battery-medium" {...p} />;
+        const BatteryLow = (p) => <Icon name="battery-low" {...p} />;
+        const Stethoscope = (p) => <Icon name="stethoscope" {...p} />;
+        const Users = (p) => <Icon name="users" {...p} />;
+        const User = (p) => <Icon name="user" {...p} />;
+        const UserPlus = (p) => <Icon name="user-plus" {...p} />;
+        const Bell = (p) => <Icon name="bell" {...p} />;
+        const BarChart3 = (p) => <Icon name="bar-chart-3" {...p} />;
+        const RefreshCw = (p) => <Icon name="refresh-cw" {...p} />;
+        const Home = (p) => <Icon name="home" {...p} />;
+        const Phone = (p) => <Icon name="phone" {...p} />;
+        const FileText = (p) => <Icon name="file-text" {...p} />;
+        const ChevronLeft = (p) => <Icon name="chevron-left" {...p} />;
+        const LogOut = (p) => <Icon name="log-out" {...p} />;
+        const ShieldAlert = (p) => <Icon name="shield-alert" {...p} />;
+        const Cloud = (p) => <Icon name="cloud" {...p} />;
+        const Smartphone = (p) => <Icon name="smartphone" {...p} />;
+        const Radio = (p) => <Icon name="radio" {...p} />;
+        const ArrowRight = (p) => <Icon name="arrow-right" {...p} />;
+        const Search = (p) => <Icon name="search" {...p} />;
+        const Lock = (p) => <Icon name="lock" {...p} />;
+        const ShieldCheck = (p) => <Icon name="shield-check" {...p} />;
+        const MapPin = (p) => <Icon name="map-pin" {...p} />;
+        const Wifi = (p) => <Icon name="wifi" {...p} />;
+        const WifiOff = (p) => <Icon name="wifi-off" {...p} />;
+        const Key = (p) => <Icon name="key" {...p} />;
+        const Plus = (p) => <Icon name="plus" {...p} />;
+        const ClipboardList = (p) => <Icon name="clipboard-list" {...p} />;
+        const Settings = (p) => <Icon name="settings" {...p} />;
+        const Trash2 = (p) => <Icon name="trash-2" {...p} />;
+        const Copy = (p) => <Icon name="copy" {...p} />;
+        const Share2 = (p) => <Icon name="share-2" {...p} />;
+        const Clock = (p) => <Icon name="clock" {...p} />;
+        const X = (p) => <Icon name="x" {...p} />;
+        const Building2 = (p) => <Icon name="building-2" {...p} />;
+        const Inbox = (p) => <Icon name="inbox" {...p} />;
+        const FolderOpen = (p) => <Icon name="folder-open" {...p} />;
+        const Syringe = (p) => <Icon name="syringe" {...p} />;
+        const ExternalLink = (p) => <Icon name="external-link" {...p} />;
+        const QrCode = (p) => <Icon name="qr-code" {...p} />;
+        const Pill = (p) => <Icon name="pill" {...p} />;
+        const Calendar = (p) => <Icon name="calendar" {...p} />;
+        const Check = (p) => <Icon name="check" {...p} />;
+
+        const customStyles = `
+          @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+          }
+          @keyframes slideUpModal {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+          }
+          .animate-slide-up {
+            animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          }
+          @keyframes drawLine {
+            from { stroke-dashoffset: 1000; }
+            to { stroke-dashoffset: 0; }
+          }
+          .animate-draw {
+            stroke-dasharray: 1000;
+            animation: drawLine 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          }
+          .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+          }
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+          .custom-scroll::-webkit-scrollbar { width: 8px; }
+          .custom-scroll::-webkit-scrollbar-track { background: #0f172a; }
+          .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        `;
+
+        const PATIENTS = [
+          {
+            id: 1, name: "Kwame Asante", age: 34, avatar: "KA", color: "text-amber-700", bg: "bg-amber-100",
+            mrn: "CUH-882914", dob: "12-May-1992", gender: "Male",
+            patchId: "AS-00142", battery: 71, lastSync: "3 min ago",
+            patientPhone: "+233 55 123 4567", caregiverPhone: "+233 20 987 6543", providerPhone: "+233 24 111 2222",
+            risk: 73, wheeze: 8.4, pm25: 44, pm10: 61, humidity: 82, temp: 28,
+            deployments: 1, status: "high",
+            caregivers: [
+              { id: 1, name: "Abena Asante", relation: "Wife", phone: "+233 20 987 6543" }
+            ],
+            alerts: [
+              { id: 1, type: "danger", icon: <ShieldAlert size={20}/>, title: "Preventative dose deployed — Tulobuterol 2mg", time: "Today, 07:32", detail: "73% attack predictive risk triggered the 2mg LABA to auto-deploy. Skin check passed." },
+              { id: 2, type: "warn", icon: <Activity size={20}/>, title: "Wheeze index crossed 6.0", time: "Today, 07:14", detail: "Rising from 4.1 baseline. Motion artefacts removed." },
+              { id: 3, type: "info", icon: <Wind size={20}/>, title: "High PM2.5 — 44 µg/m³", time: "Today, 06:50", detail: "WHO limit is 15 µg/m³. Possible smoke or dust exposure." },
+              { id: 4, type: "info", icon: <BatteryLow size={20}/>, title: "Battery below 20%", time: "Yesterday, 22:15", detail: "Please charge your AirSense patch soon to ensure continuous monitoring." },
+              { id: 5, type: "info", icon: <Droplets size={20}/>, title: "High humidity warning", time: "Yesterday, 14:30", detail: "Humidity reached 88%. This can increase airway resistance." },
+            ],
+            symptomLogs: [
+              { id: 101, date: "Yesterday, 20:45", severity: "mild", symptoms: ["Cough", "Tightness"], notes: "Felt a bit tight after dinner." }
+            ],
+            history: [3.1, 2.8, 3.4, 3.0, 3.2, 4.1, 4.5, 5.0, 5.4, 6.0, 6.8, 7.2, 7.9, 8.4],
+            notes: [
+              { id: 1, date: "Jun 1, 2026", author: "Dr. Mensah", text: "Patient reports increased breathlessness since yesterday evening. Wheeze index rising steadily from 22:00. Auto-deployment of Tulobuterol successful. Advised patient to reduce outdoor activity. Follow-up to ensure 24h maintenance is sufficient." },
+              { id: 2, date: "May 28, 2026", author: "Dr. Mensah", text: "Reviewed 7-day trend. Two minor wheeze spikes correlating with high PM2.5 days. Patient adherent to maintenance ICS." },
+            ]
+          },
+          {
+            id: 2, name: "Ama Boateng", age: 28, avatar: "AB", color: "text-emerald-700", bg: "bg-emerald-100",
+            mrn: "CUH-110243", dob: "03-Nov-1998", gender: "Female",
+            patchId: "AS-00089", battery: 88, lastSync: "12 min ago",
+            patientPhone: "+233 50 222 3333", caregiverPhone: "+233 24 444 5555", providerPhone: "+233 24 111 2222",
+            risk: 12, wheeze: 1.2, pm25: 8, pm10: 14, humidity: 65, temp: 26,
+            deployments: 0, status: "stable",
+            caregivers: [
+              { id: 1, name: "Kofi Boateng", relation: "Husband", phone: "+233 24 444 5555" }
+            ],
+            alerts: [
+              { id: 1, type: "info", icon: <CheckCircle2 size={20}/>, title: "Daily sync completed", time: "Today, 06:15", detail: "All vitals within normal range. No interventions needed." },
+            ],
+            symptomLogs: [],
+            history: [2.0, 1.8, 1.9, 1.7, 1.5, 1.4, 1.3, 1.2, 1.2, 1.1, 1.3, 1.2, 1.1, 1.2],
+            notes: [{ id: 1, date: "May 30, 2026", author: "Dr. Mensah", text: "Excellent control on current ICS regimen. Continue monitoring." }]
+          },
+          {
+            id: 3, name: "Yaw Darko", age: 52, avatar: "YD", color: "text-blue-700", bg: "bg-blue-100",
+            mrn: "CUH-449122", dob: "22-Jan-1974", gender: "Male",
+            patchId: "AS-00211", battery: 54, lastSync: "8 min ago",
+            patientPhone: "+233 20 777 8888", caregiverPhone: "+233 27 999 0000", providerPhone: "+233 24 111 2222",
+            risk: 41, wheeze: 4.7, pm25: 22, pm10: 35, humidity: 70, temp: 27,
+            deployments: 0, status: "watch",
+            caregivers: [
+              { id: 1, name: "Akosua Darko", relation: "Daughter", phone: "+233 27 999 0000" }
+            ],
+            alerts: [
+              { id: 1, type: "warn", icon: <Activity size={20}/>, title: "Wheeze index rising — 4.7", time: "Today, 05:44", detail: "Gradual overnight increase. Not yet at predictive threshold but trending upward." },
+              { id: 2, type: "info", icon: <Wind size={20}/>, title: "Moderate PM2.5 — 22 µg/m³", time: "Today, 04:30", detail: "Above background levels. Monitor closely." },
+            ],
+            symptomLogs: [],
+            history: [2.2, 2.5, 2.8, 3.0, 3.1, 3.3, 3.5, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.7],
+            notes: [{ id: 1, date: "May 29, 2026", author: "Dr. Mensah", text: "Occupational exposure likely contributing. Recommended N95 mask at work. Monitoring PM2.5 correlation." }]
+          }
+        ];
+
+        function FadeIn({ children, delay = 0, className = "" }) {
+          return (
+            <div className={`animate-fade-in ${className}`} style={{ animationDelay: `${delay}ms` }}>
+              {children}
+            </div>
+          );
+        }
+
+        function MiniChart({ data, colorHex, gradientId, height = 80 }) {
+          const w = 400, h = height;
+          const min = Math.min(...data), max = Math.max(...data);
+          const coords = data.map((v, i) => [
+            (i / (data.length - 1)) * w,
+            h - ((v - min) / (max - min || 1)) * (h - 16) - 8
+          ]);
+          const line = coords.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ");
+          const area = `${line} L${w},${h} L0,${h} Z`;
+          
+          return (
+            <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full block drop-shadow-sm">
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={colorHex} stopOpacity="0.25" />
+                  <stop offset="100%" stopColor={colorHex} stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d={area} fill={`url(#${gradientId})`} className="animate-fade-in" style={{ animationDelay: "300ms" }} />
+              <path d={line} fill="none" stroke={colorHex} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="animate-draw" />
+              <circle cx={coords[coords.length - 1][0]} cy={coords[coords.length - 1][1]} r="4" fill={colorHex} className="animate-fade-in" style={{ animationDelay: "1500ms" }} />
+            </svg>
+          );
+        }
+
+        function StatusBadge({ status }) {
+          const map = {
+            high:   { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/20", label: "High Risk" },
+            watch:  { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/20", label: "Monitoring" },
+            stable: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20", label: "Stable" },
+          };
+          const s = map[status] || map.stable;
+          return (
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${s.bg} ${s.text} ${s.border} flex items-center gap-1.5`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${status==='high'?'bg-red-500 animate-pulse':status==='watch'?'bg-amber-500':'bg-emerald-500'}`}></span>
+              {s.label}
+            </span>
+          );
+        }
+
+        function BatteryIndicator({ level, className = "" }) {
+          let BIcon = Battery;
+          let color = "text-emerald-500";
+          if (level <= 50) { BIcon = BatteryMedium; color = "text-amber-500"; }
+          if (level <= 20) { BIcon = BatteryLow; color = "text-red-500"; }
+          
+          return (
+            <div className={`flex items-center gap-1 text-xs font-medium ${className}`}>
+              <BIcon size={14} className={color} />
+              <span>{level}%</span>
+            </div>
+          );
+        }
+
+        function CallModal({ contact, onClose }) {
+          if (!contact) return null;
+          return (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[200] p-4 animate-fade-in" onClick={onClose} style={{ animationDuration: '0.2s' }}>
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-fade-in flex flex-col items-center text-center" style={{ animationDelay: '0.1s' }} onClick={e => e.stopPropagation()}>
+                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-4">
+                  <Phone size={32} className="animate-pulse" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-1">Calling {contact.name}...</h3>
+                <p className="text-sm text-slate-400 mb-6">{contact.role}</p>
+                <div className="text-3xl font-mono font-bold text-emerald-400 tracking-wider mb-8">
+                  {contact.phone}
+                </div>
+                <button onClick={onClose} className="w-full py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl font-bold hover:bg-red-500/20 transition-colors">
+                  End Call
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        function AuthLayout({ title, subtitle, icon: IconComp, onBack, children }) {
+          return (
+            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+              <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-emerald-900/20 rounded-full blur-[100px]" />
+              <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-900/20 rounded-full blur-[100px]" />
+              
+              <button onClick={onBack} className="absolute top-8 left-8 flex items-center gap-2 text-slate-400 hover:text-white transition-colors z-20">
+                <ChevronLeft size={20} /> Back
+              </button>
+
+              <FadeIn className="w-full max-w-md z-10">
+                <div className="flex flex-col items-center mb-8 text-center">
+                  <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mb-6 text-emerald-400">
+                    <IconComp size={32} />
+                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-2">{title}</h2>
+                  <p className="text-slate-400">{subtitle}</p>
+                </div>
+                
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
+                  {children}
+                </div>
+              </FadeIn>
+            </div>
+          );
+        }
+
+        function PatientLogin({ onBack, onLogin }) {
+          const [phone, setPhone] = useState("");
+          const [loading, setLoading] = useState(false);
+
+          const handleSubmit = (e) => {
+            e.preventDefault();
+            setLoading(true);
+            setTimeout(() => onLogin(), 1000);
+          };
+
+          return (
+            <AuthLayout title="Patient Login" subtitle="Access your personal asthma dashboard." icon={User} onBack={onBack}>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">Phone Number</label>
+                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+233 55 123 4567" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-600" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">Password</label>
+                  <input type="password" placeholder="••••••••" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-600" required />
+                </div>
+                <button type="submit" disabled={loading} className="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-900/50 mt-4 flex justify-center items-center gap-2">
+                  {loading ? <RefreshCw className="animate-spin" size={20} /> : 'Secure Login'}
+                </button>
+              </form>
+            </AuthLayout>
+          );
+        }
+
+        function CaregiverLogin({ onBack, onLogin }) {
+          const [email, setEmail] = useState("");
+          const [password, setPassword] = useState("");
+          const [loading, setLoading] = useState(false);
+
+          const handleSubmit = (e) => {
+            e.preventDefault();
+            setLoading(true);
+            setTimeout(() => onLogin(), 1000);
+          };
+
+          return (
+            <AuthLayout title="Caregiver Login" subtitle="Access your dashboard to monitor your loved ones." icon={Users} onBack={onBack}>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">Email Address</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="caregiver@example.com" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-600" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">Password</label>
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-600" required />
+                </div>
+                <button type="submit" disabled={loading} className="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-900/50 mt-4 flex justify-center items-center gap-2">
+                  {loading ? <RefreshCw className="animate-spin" size={20} /> : <><Key size={18}/> Log In</>}
+                </button>
+              </form>
+            </AuthLayout>
+          );
+        }
+
+        function EHMISLogin({ onBack, onLogin }) {
+          const [loading, setLoading] = useState(false);
+          const [networkStatus, setNetworkStatus] = useState('checking');
+          const [simExternal, setSimExternal] = useState(false);
+
+          useEffect(() => {
+            setNetworkStatus('checking');
+            const timer = setTimeout(() => {
+              setNetworkStatus(simExternal ? 'external' : 'secure');
+            }, 1200);
+            return () => clearTimeout(timer);
+          }, [simExternal]);
+
+          const handleSubmit = (e) => {
+            e.preventDefault();
+            if (networkStatus !== 'secure') return;
+            setLoading(true);
+            setTimeout(() => onLogin(), 1200);
+          };
+
+          return (
+            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+              
+              <button onClick={onBack} className="absolute top-8 left-8 flex items-center gap-2 text-slate-400 hover:text-white transition-colors z-20">
+                <ChevronLeft size={20} /> Exit Portal
+              </button>
+
+              <FadeIn className="w-full max-w-md z-10">
+                <div className="flex flex-col items-center mb-8 text-center">
+                  <div className="w-20 h-20 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center mb-6 text-white shadow-xl">
+                    <Building2 size={40} className="text-emerald-400" />
+                  </div>
+                  <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Central University Hospital</h2>
+                  <p className="text-slate-400 font-medium tracking-wide">Electronic Health Management Information System</p>
+                </div>
+                
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl">
+                  
+                  <div className={`mb-6 p-4 rounded-xl border flex items-start gap-3 transition-colors duration-500 ${
+                    networkStatus === 'checking' ? 'bg-slate-800/50 border-slate-700 text-slate-300' :
+                    networkStatus === 'secure' ? 'bg-emerald-900/20 border-emerald-800/30 text-emerald-300' :
+                    'bg-red-900/20 border-red-800/30 text-red-300'
+                  }`}>
+                    <div className="mt-0.5">
+                      {networkStatus === 'checking' ? <RefreshCw className="animate-spin" size={18}/> :
+                       networkStatus === 'secure' ? <ShieldCheck size={18} className="text-emerald-400"/> : 
+                       <WifiOff size={18} className="text-red-400"/>}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-bold mb-1">
+                        {networkStatus === 'checking' ? 'Verifying Network Connection...' :
+                         networkStatus === 'secure' ? 'Connected via CUH Intranet' : 'Access Denied: External Network'}
+                      </h4>
+                      <p className={`text-xs leading-relaxed ${networkStatus === 'external' ? 'text-red-300/80' : 'text-slate-400'}`}>
+                        {networkStatus === 'checking' ? 'Checking IP address and location data...' :
+                         networkStatus === 'secure' ? 'Secure connection established. Clinical access granted.' :
+                         'Provider portal is strictly geofenced to approved hospital networks to protect patient PHI. You cannot login from outside the facility.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-300 mb-2">Staff Directory ID</label>
+                      <input type="text" disabled={networkStatus !== 'secure'} placeholder="e.g. MD-4491" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-50 disabled:opacity-50 transition-all placeholder:text-slate-600 font-medium" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-300 mb-2">Password</label>
+                      <input type="password" disabled={networkStatus !== 'secure'} placeholder="••••••••" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-50 disabled:opacity-50 transition-all placeholder:text-slate-600 font-medium" required />
+                    </div>
+                    <button type="submit" disabled={networkStatus !== 'secure' || loading} className={`w-full py-3.5 text-white rounded-lg font-bold transition-all shadow-md mt-4 flex justify-center items-center gap-2 ${
+                      networkStatus === 'secure' && !loading ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/20' : 'bg-slate-800 text-slate-500 shadow-none cursor-not-allowed'
+                    }`}>
+                      {loading ? <RefreshCw className="animate-spin" size={20} /> : <><Lock size={18}/> Secure Login</>}
+                    </button>
+                  </form>
+                </div>
+              </FadeIn>
+            </div>
+          );
+        }
+
+        function AirSenseApp() {
+          const [authView, setAuthView] = useState("landing"); 
+          const [portal, setPortal] = useState(null);
+          const [patientsData, setPatientsData] = useState(PATIENTS);
+
+          if (portal === "provider") return <EHMISPortal patientsData={patientsData} setPatientsData={setPatientsData} onBack={() => { setPortal(null); setAuthView("landing"); }} />;
+          if (portal === "caregiver") return <CaregiverPortal patientsData={patientsData} setPatientsData={setPatientsData} onBack={() => { setPortal(null); setAuthView("landing"); }} />;
+          if (portal === "patient") return <PatientPortal patient={patientsData[0]} setPatientsData={setPatientsData} onBack={() => { setPortal(null); setAuthView("landing"); }} />;
+
+          if (authView === "patient") return <PatientLogin onBack={() => setAuthView("landing")} onLogin={() => setPortal("patient")} />;
+          if (authView === "caregiver") return <CaregiverLogin onBack={() => setAuthView("landing")} onLogin={() => setPortal("caregiver")} />;
+          if (authView === "provider") return <EHMISLogin onBack={() => setAuthView("landing")} onLogin={() => setPortal("provider")} />;
+
+          return (
+            <div className="min-h-screen bg-slate-900 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-900/40 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-6 text-white font-sans selection:bg-emerald-500 selection:text-white">
+              <style>{customStyles}</style>
+              
+              <FadeIn delay={100} className="text-center mb-12">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Activity size={28} color="white" />
+                  </div>
+                  <h1 className="text-5xl font-extrabold tracking-tight">AirSense<span className="text-emerald-400">.</span></h1>
+                </div>
+                <p className="text-slate-400 text-lg max-w-md mx-auto">Continuous acoustic & environmental asthma monitoring platform.</p>
+              </FadeIn>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
+                {[
+                  { key: "patient", icon: User, title: "Patient Login", desc: "View your real-time breathing data, log symptoms, receive early warnings, and manage data access." },
+                  { key: "caregiver", icon: Users, title: "Caregiver Access", desc: "Monitor your loved ones' patches and receive instant emergency alerts." },
+                  { key: "provider", icon: Building2, title: "eHMIS GH" },
+                ].map((p, i) => (
+                  <FadeIn key={p.key} delay={200 + (i * 100)}>
+                    <div 
+                      onClick={() => setAuthView(p.key)}
+                      className="glass-panel rounded-3xl p-8 h-full cursor-pointer group transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/50 flex flex-col items-center text-center"
+                    >
+                      <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300 border border-slate-700/50">
+                        <p.icon size={32} className="text-emerald-400" />
+                      </div>
+                      <h2 className="text-xl font-bold text-white mb-3">{p.title}</h2>
+                      <p className="text-sm text-slate-400 leading-relaxed flex-1">{p.desc}</p>
+                      <div className="mt-8 text-sm font-semibold text-emerald-400 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300 bg-emerald-500/10 px-4 py-2 rounded-lg">
+                        Authenticate <ArrowRight size={16} />
+                      </div>
+                    </div>
+                  </FadeIn>
+                ))}
+              </div>
+            </div>
+          );
+        }
+        function EHMISPortal({ patientsData, setPatientsData, onBack }) {
+          const [view, setView] = useState("patients"); 
+          const [activePatientMrn, setActivePatientMrn] = useState(null);
+          const [searchQuery, setSearchQuery] = useState("");
+
+          const openChart = (mrn) => {
+            setActivePatientMrn(mrn);
+            setView("chart");
+          };
+
+          const NavItem = ({ id, icon: IconComp, label, badge }) => (
+            <button 
+              onClick={() => { setView(id); if(id !== 'chart') setActivePatientMrn(null); }}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-bold transition-colors ${
+                view === id && !activePatientMrn ? "bg-emerald-500/10 text-emerald-400 border-l-4 border-emerald-500" : "text-slate-400 hover:bg-slate-800 hover:text-slate-200 border-l-4 border-transparent"
+              }`}
+            >
+              <IconComp size={18} className={view === id && !activePatientMrn ? "text-emerald-400" : "text-slate-500"} />
+              {label}
+              {badge > 0 && <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm">{badge}</span>}
+            </button>
+          );
+
+          return (
+            <div className="flex h-screen bg-slate-950 font-sans text-slate-200 overflow-hidden">
+              <style>{customStyles}</style>    
+              {/* EHMIS Left Sidebar */}
+              <div className="w-64 bg-slate-900 flex flex-col flex-shrink-0 z-20 border-r border-slate-800">
+                <div className="p-5 border-b border-slate-800 flex items-center gap-3 bg-slate-950/50">
+                  <div className="w-8 h-8 bg-emerald-600 rounded flex items-center justify-center shadow-sm">
+                    <Building2 size={18} color="white" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm leading-tight tracking-tight text-white">Central University</div>
+                    <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Hospital eHMIS</div>
+                  </div>
+                </div>
+                
+                <div className="p-4 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-700 text-white flex items-center justify-center font-bold text-sm">DM</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold text-white truncate">Dr. D. Mensah</div>
+                    <div className="text-xs text-slate-400 truncate">Pulmonology Attending</div>
+                  </div>
+                </div>
+
+                <div className="flex-1 py-4 flex flex-col gap-1">
+                  <NavItem id="patients" icon={Users} label="My Patients" />
+                  <NavItem id="inbox" icon={Inbox} label="Alerts Inbox" badge={patientsData.filter(p => p.status === 'high').length} />
+                  <NavItem id="schedule" icon={Calendar} label="Schedule" />
+                  <NavItem id="provisioning" icon={QrCode} label="Device Provisioning" />
+                </div>
+
+                <div className="p-4 border-t border-slate-800">
+                   <button onClick={onBack} className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-sm font-bold transition-colors flex justify-center items-center gap-2">
+                     <LogOut size={16} /> Log Out
+                   </button>
+                </div>
+              </div>
+              {/* EHMIS Main Content Area */}
+              <div className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-950">
+                {/* EHMIS Top Bar with functioning search */}
+                <header className="bg-slate-900 border-b border-slate-800 h-14 flex items-center justify-between px-6 flex-shrink-0 shadow-sm z-10">
+                  <div className="flex items-center gap-6">
+                    <div className="relative w-96">
+                      <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input 
+                        type="text" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search Chart (MRN, Name)..." 
+                        className="w-full bg-slate-950 border border-slate-800 text-white text-sm rounded-lg px-9 py-1.5 focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-600" 
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-slate-400 text-sm font-medium">
+                    <span className="flex items-center gap-1 text-emerald-400"><ShieldCheck size={16}/> HL7 FHIR Active</span>
+                    <span className="text-slate-700">|</span>
+                    {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </div>
+                </header>
+
+                <div className="flex-1 overflow-y-auto bg-slate-950 p-6 custom-scroll">
+                  {/* MODIFIED: Passed setPatientsData to EHMISInbox */}
+                  {view === "inbox" && <EHMISInbox patientsData={patientsData} setPatientsData={setPatientsData} openChart={openChart} />}
+                  {view === "patients" && <EHMISPatientList patientsData={patientsData} searchQuery={searchQuery} openChart={openChart} />}
+                  {view === "schedule" && <EHMISSchedule />}
+                  {view === "provisioning" && <EHMISProvisioning />}
+                  {view === "chart" && activePatientMrn && <EHMISPatientChart patient={patientsData.find(p => p.mrn === activePatientMrn)} setPatientsData={setPatientsData} onClose={() => setView('patients')} />}
+                </div>
+              </div>
+            </div>
+          );
+        }
+        function EHMISSchedule() {
+          return (
+            <div className="max-w-5xl mx-auto animate-fade-in">
+              <h1 className="text-2xl font-black text-white mb-2">Today's Clinic Schedule</h1>
+              <p className="text-slate-400 text-sm mb-6">Pulmonology Department • Dr. D. Mensah</p>
+              
+              <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-sm overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-950/50 border-b border-slate-800 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <th className="p-4">Time</th>
+                      <th className="p-4">Patient</th>
+                      <th className="p-4">Visit Type</th>
+                      <th className="p-4">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-sm text-slate-300">
+                    <tr className="hover:bg-slate-800/50">
+                      <td className="p-4 font-mono font-bold text-white">09:00 AM</td>
+                      <td className="p-4">Kwame Asante <span className="block text-xs text-slate-500 font-mono">CUH-882914</span></td>
+                      <td className="p-4">Post-Exacerbation Follow-up</td>
+                      <td className="p-4"><span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-xs font-bold">Checked In</span></td>
+                    </tr>
+                    <tr className="hover:bg-slate-800/50">
+                      <td className="p-4 font-mono font-bold text-white">09:45 AM</td>
+                      <td className="p-4">Samuel Osei <span className="block text-xs text-slate-500 font-mono">CUH-992123</span></td>
+                      <td className="p-4">New Patient Consultation</td>
+                      <td className="p-4"><span className="px-2 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded text-xs font-bold">Scheduled</span></td>
+                    </tr>
+                    <tr className="hover:bg-slate-800/50">
+                      <td className="p-4 font-mono font-bold text-white">10:30 AM</td>
+                      <td className="p-4">Yaw Darko <span className="block text-xs text-slate-500 font-mono">CUH-449122</span></td>
+                      <td className="p-4">Routine Asthma Check</td>
+                      <td className="p-4"><span className="px-2 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded text-xs font-bold">Scheduled</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        }
+        function EHMISProvisioning() {
+          const [mrn, setMrn] = useState("");
+          const [udi, setUdi] = useState("");
+          const [linking, setLinking] = useState(false);
+          const [success, setSuccess] = useState(false);
+
+          const handleLink = (e) => {
+            e.preventDefault();
+            if (!mrn || !udi) return;
+            setLinking(true);
+            setTimeout(() => {
+              setLinking(false);
+              setSuccess(true);
+            }, 1500);
+          };
+
+          return (
+            <div className="max-w-2xl mx-auto animate-fade-in">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
+                  <QrCode size={24} className="text-blue-400"/>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black text-white">Device Provisioning</h1>
+                  <p className="text-slate-400 text-sm">Assign an AirSense Patch UDI to a Patient MRN</p>
+                </div>
+              </div>
+
+              {success ? (
+                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-8 text-center animate-fade-in">
+                  <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Check size={32} />
+                  </div>
+                  <h2 className="text-xl font-bold text-white mb-2">Device Successfully Provisioned</h2>
+                  <p className="text-slate-400 mb-6">AirSense Patch ({udi}) is now securely mapped to MRN: {mrn}. Telemetry data will automatically route to the eHMIS via HL7 FHIR.</p>
+                  <button onClick={() => { setSuccess(false); setMrn(""); setUdi(""); }} className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold transition-colors">
+                    Provision Another Device
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                  <form onSubmit={handleLink} className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-300 mb-2">Patient MRN</label>
+                      <input type="text" value={mrn} onChange={(e)=>setMrn(e.target.value)} placeholder="Search or Scan MRN..." className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-600 font-mono" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-300 mb-2">Device UDI (Barcode/Serial)</label>
+                      <div className="flex gap-2">
+                        <input type="text" value={udi} onChange={(e)=>setUdi(e.target.value)} placeholder="e.g. AS-XXXXX" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-600 font-mono uppercase" required />
+                        <button type="button" className="px-4 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg hover:bg-slate-700 hover:text-white transition-colors">
+                          <QrCode size={20} />
+                        </button>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-2">Scan the barcode on the back of the physical AirSense patch box.</p>
+                    </div>
+                    <div className="pt-4 border-t border-slate-800">
+                      <button type="submit" disabled={linking || !mrn || !udi} className="w-full py-3.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-500 transition-all shadow-md shadow-blue-900/20 flex justify-center items-center gap-2 disabled:opacity-50">
+                        {linking ? <RefreshCw className="animate-spin" size={18} /> : <><ShieldCheck size={18}/> Establish Secure FHIR Link</>}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        function EHMISPatientList({ patientsData, searchQuery, openChart }) {
+
+          const filteredPatients = patientsData.filter(p => 
+            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.mrn.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+
+          return (
+            <div className="max-w-5xl mx-auto animate-fade-in">
+              <h1 className="text-2xl font-black text-white mb-6">My Patients</h1>
+              <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-sm overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-950/50 border-b border-slate-800 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <th className="p-4 w-12"></th>
+                      <th className="p-4">Patient Name</th>
+                      <th className="p-4">MRN</th>
+                      <th className="p-4">DOB / Age</th>
+                      <th className="p-4">Active Devices</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {filteredPatients.length > 0 ? (
+                      filteredPatients.map(p => (
+                        <tr key={p.id} className="hover:bg-slate-800/50 transition-colors">
+                          <td className="p-4 text-center">
+                            <div className={`w-2 h-2 rounded-full mx-auto ${p.status === 'high' ? 'bg-red-500 animate-pulse' : p.status === 'watch' ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
+                          </td>
+                          <td className="p-4 font-bold text-white text-sm">{p.name}</td>
+                          <td className="p-4 font-mono text-xs text-slate-400">{p.mrn}</td>
+                          <td className="p-4 text-sm text-slate-400">{p.dob} <span className="text-slate-500">({p.age}y)</span></td>
+                          <td className="p-4">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-xs font-bold">
+                              <Activity size={12}/> AirSense Patch
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <button onClick={() => openChart(p.mrn)} className="text-emerald-400 hover:text-emerald-300 text-sm font-bold px-3 py-1 border border-transparent hover:border-emerald-500/30 rounded transition-colors">
+                              Chart Review
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6" className="p-8 text-center text-slate-500 text-sm">
+                          No patients matching "{searchQuery}" found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        }
+
+        // MODIFIED: Updated EHMISInbox to accept setPatientsData and added the Resolve Alert workflow
+        function EHMISInbox({ patientsData, setPatientsData, openChart }) {
+          const [resolvingPatient, setResolvingPatient] = useState(null);
+          const [resolveNote, setResolveNote] = useState("");
+
+          const criticalPatients = patientsData.filter(p => p.status === 'high');
+          
+          const confirmResolve = (e) => {
+            e.preventDefault();
+            if (!resolvingPatient || !resolveNote.trim()) return;
+
+            setPatientsData(prev => prev.map(p => {
+              if (p.id === resolvingPatient.id) {
+                return {
+                  ...p,
+                  status: 'watch', // Downgrades risk from High to Monitoring
+                  notes: [
+                    {
+                      id: Date.now(),
+                      date: "Just now",
+                      author: "Dr. Mensah",
+                      text: `[ALERT RESOLVED] ${resolveNote.trim()}` // Add resolution audit trail
+                    },
+                    ...p.notes
+                  ]
+                };
+              }
+              return p;
+            }));
+            
+            setResolvingPatient(null);
+            setResolveNote("");
+          };
+
+          return (
+            <div className="max-w-5xl mx-auto animate-fade-in">
+              <div className="flex justify-between items-end mb-6">
+                <div>
+                  <h1 className="text-2xl font-black text-white">Alerts Inbox</h1>
+                  <p className="text-sm text-slate-400 mt-1">Routed API Alerts & Internal Messages</p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-sm font-bold text-slate-200 transition-colors shadow-sm">Mark All Read</button>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-sm overflow-hidden">
+                <div className="flex items-center gap-4 p-3 bg-slate-950/50 border-b border-slate-800 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <div className="w-12 text-center">Priority</div>
+                  <div className="w-48">Patient (MRN)</div>
+                  <div className="flex-1">Message / Event Route</div>
+                  <div className="w-32 text-right">Time</div>
+                  {/* Expanded action column to fit the Resolve button */}
+                  <div className="w-32 text-center">Actions</div> 
+                </div>
+                
+                <div className="divide-y divide-slate-800">
+                  {criticalPatients.map(p => (
+                    <div key={p.id} className="flex items-center gap-4 p-4 hover:bg-slate-800/50 transition-colors bg-red-500/5">
+                      <div className="w-12 flex justify-center">
+                        <AlertTriangle size={20} className="text-red-500 animate-pulse" />
+                      </div>
+                      <div className="w-48">
+                        <div className="font-bold text-white text-sm">{p.name}</div>
+                        <div className="text-xs text-slate-500 font-mono mt-0.5">{p.mrn}</div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-bold text-slate-200 text-sm mb-1 flex items-center gap-2">
+                          <span className="bg-red-500/10 text-red-400 px-2 py-0.5 rounded text-[10px] uppercase font-black tracking-widest border border-red-500/20">HL7 / Device API</span>
+                          Auto-Deployment Intervention Recorded
+                        </div>
+                        <div className="text-sm text-slate-400 line-clamp-1">
+                          Device {p.patchId} triggered Tulobuterol 2mg deployment. Attack predictive risk at {p.risk}%.
+                        </div>
+                      </div>
+                      <div className="w-32 text-right text-xs font-bold text-slate-400">
+                        {p.alerts[0].time}
+                      </div>
+                      
+                      {/* MODIFIED: Added Resolve Button */}
+                      <div className="w-32 flex justify-center items-center gap-2">
+                        <button 
+                          onClick={() => setResolvingPatient(p)} 
+                          className="p-1.5 bg-slate-800 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 rounded transition-colors shadow-sm border border-slate-700 hover:border-emerald-500/30" 
+                          title="Acknowledge & Resolve Alert"
+                        >
+                          <Check size={16} />
+                        </button>
+                        <button onClick={() => openChart(p.mrn)} className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-bold shadow-sm transition-colors">
+                          Chart
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className="flex items-center gap-4 p-4 hover:bg-slate-800/50 transition-colors opacity-70">
+                    <div className="w-12 flex justify-center"><FolderOpen size={18} className="text-slate-500" /></div>
+                    <div className="w-48"><div className="font-bold text-white text-sm">Lab Results</div></div>
+                    <div className="flex-1"><div className="font-bold text-slate-200 text-sm mb-1">Morning CBC panel ready for review</div><div className="text-sm text-slate-400">From: Central Lab</div></div>
+                    <div className="w-32 text-right text-xs text-slate-500">Yesterday</div>
+                    <div className="w-32 flex justify-center"><button className="text-emerald-400 text-xs font-bold">View</button></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* MODIFIED: Added the Resolve Alert Workflow Modal */}
+              {resolvingPatient && (
+                <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[200] p-4 animate-fade-in" onClick={() => setResolvingPatient(null)}>
+                  <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl animate-slide-up flex flex-col" onClick={e => e.stopPropagation()}>
+                    
+                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-800">
+                      <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <ShieldCheck size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white">Resolve Critical Alert</h3>
+                        <p className="text-sm text-slate-400 mt-0.5">Patient: {resolvingPatient.name} ({resolvingPatient.mrn})</p>
+                      </div>
+                    </div>
+                    
+                    <form onSubmit={confirmResolve}>
+                      <label className="block text-sm font-bold text-slate-300 mb-2">Resolution Note <span className="text-red-400">*</span></label>
+                      <p className="text-xs text-slate-500 mb-3">Provide a brief justification for the audit trail before clearing this intervention alert.</p>
+                      <textarea 
+                        autoFocus 
+                        required
+                        value={resolveNote} 
+                        onChange={(e) => setResolveNote(e.target.value)} 
+                        placeholder="E.g., Contacted patient via phone. Vitals are now stable. No further intervention needed at this time." 
+                        className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-4 min-h-[120px] mb-8 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none placeholder:text-slate-600 text-sm leading-relaxed" 
+                      />
+                      <div className="flex gap-3 mt-auto">
+                        <button type="button" onClick={() => setResolvingPatient(null)} className="flex-1 py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-700 transition-colors border border-slate-700">Cancel</button>
+                        <button type="submit" disabled={!resolveNote.trim()} className="flex-1 py-3 bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:shadow-none text-white rounded-xl font-bold text-sm hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2">
+                          <Check size={16}/> Sign & Resolve
+                        </button>
+                      </div>
+                    </form>
+
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        function EHMISPatientChart({ patient, setPatientsData, onClose }) {
+          const [chartTab, setChartTab] = useState("overview");
+          const [showNoteModal, setShowNoteModal] = useState(false);
+          const [callContact, setCallContact] = useState(null);
+
+          const handleAddNote = (text) => {
+            const newNote = {
+              id: Date.now(),
+              date: "Just now",
+              author: "Dr. Mensah",
+              text: text
+            };
+            setPatientsData(prev => prev.map(p => {
+              if (p.mrn === patient.mrn) {
+                return { ...p, notes: [newNote, ...p.notes] };
+              }
+              return p;
+            }));
+            setShowNoteModal(false);
+          };
+
+          const TabBtn = ({ id, label }) => (
+            <button 
+              onClick={() => setChartTab(id)}
+              className={`px-6 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${
+                chartTab === id ? "border-emerald-500 text-emerald-400 bg-emerald-500/10" : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+              }`}
+            >
+              {label}
+            </button>
+          );
+
+          return (
+            <div className="h-full flex flex-col bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden animate-fade-in relative z-10">
+              
+              {/* Chart Header */}
+              <div className="bg-slate-950 text-white px-6 py-4 flex items-center justify-between flex-shrink-0 border-b border-slate-800">
+                <div className="flex items-center gap-6">
+                  <div>
+                    <h2 className="text-xl font-black">{patient.name}</h2>
+                    <div className="flex items-center gap-3 text-sm text-slate-400 mt-1 font-medium">
+                      <span>{patient.gender}</span>
+                      <span>•</span>
+                      <span>DOB: {patient.dob} ({patient.age}y)</span>
+                      <span>•</span>
+                      <span className="font-mono text-emerald-400">MRN: {patient.mrn}</span>
+                    </div>
+                  </div>
+                  <div className="h-10 w-px bg-slate-800"></div>
+                  <div>
+                    <div className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Allergies</div>
+                    <div className="text-sm font-bold text-red-400">Penicillin, Peanuts</div>
+                  </div>
+                  <div className="h-10 w-px bg-slate-800"></div>
+                  <div>
+                    <div className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Attending</div>
+                    <div className="text-sm font-bold text-white">Dr. D. Mensah</div>
+                  </div>
+                </div>
+                <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-white">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="flex border-b border-slate-800 bg-slate-900 flex-shrink-0 overflow-x-auto no-scrollbar">
+                <TabBtn id="overview" label="Chart Overview" />
+                <TabBtn id="telemetry" label="Vitals & Telemetry" />
+                <TabBtn id="meds" label="Medications" />
+                <TabBtn id="notes" label="Clinical Notes" />
+              </div>
+
+              {/* Integrated Chart Content Area */}
+              <div className="flex-1 overflow-y-auto bg-slate-950 custom-scroll">
+                
+                {chartTab === "overview" && (
+                  <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+                    <div className="space-y-6 lg:col-span-2">
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm">
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Active Problems</h3>
+                        <div className="flex gap-2 mb-2">
+                          <span className="bg-red-500/10 text-red-400 px-2 py-1 rounded text-xs font-bold border border-red-500/20">Severe Persistent Asthma</span>
+                          <span className="bg-slate-800 text-slate-300 px-2 py-1 rounded text-xs font-bold border border-slate-700">Allergic Rhinitis</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm">
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-800 pb-2 flex justify-between items-center">
+                          Recent Vitals
+                          <span className="text-[10px] text-emerald-500 font-medium flex items-center gap-1"><ShieldCheck size={12}/> Synced {patient.lastSync}</span>
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div>
+                            <div className="text-xs text-slate-500 font-bold mb-1">Blood Pressure</div>
+                            <div className="text-lg font-bold text-white">118/76</div>
+                          </div>
+                          <div>
+                            <div className="text-xs text-slate-500 font-bold mb-1">Heart Rate</div>
+                            <div className="text-lg font-bold text-white">82 <span className="text-xs text-slate-500 font-normal">bpm</span></div>
+                          </div>
+                          <div className="bg-emerald-500/5 p-2 -m-2 rounded">
+                            <div className="text-xs text-emerald-500 font-bold mb-1 flex items-center gap-1"><Activity size={12}/> AirSense Wheeze</div>
+                            <div className={`text-lg font-bold ${patient.wheeze > 4 ? 'text-amber-400' : 'text-emerald-400'}`}>{patient.wheeze} <span className="text-xs font-normal opacity-50">/10</span></div>
+                          </div>
+                          <div className="bg-emerald-500/5 p-2 -m-2 rounded">
+                            <div className="text-xs text-emerald-500 font-bold mb-1 flex items-center gap-1"><AlertTriangle size={12}/> AirSense Risk</div>
+                            <div className={`text-lg font-bold ${patient.risk > 60 ? 'text-red-400' : 'text-emerald-400'}`}>{patient.risk}%</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm max-h-[600px] overflow-y-auto custom-scroll">
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-800 pb-2 sticky top-0 bg-slate-900 pt-2 z-10">Recent Events & Symptoms</h3>
+                        <div className="space-y-4">
+                          {patient.alerts.map(a => (
+                            <div key={a.id} className="flex gap-3 pb-3 border-b border-slate-800/50 last:border-0">
+                              <div className={`mt-0.5 ${a.type === 'danger' ? 'text-red-400' : a.type === 'warn' ? 'text-amber-400' : 'text-emerald-400'}`}>{a.icon}</div>
+                              <div className="flex-1">
+                                <div className="text-sm font-bold text-white">{a.title}</div>
+                                <div className="text-xs text-slate-400 mt-0.5 mb-1">{a.time}</div>
+                                <div className="text-sm text-slate-300 leading-relaxed">{a.detail}</div>
+                                {(a.type === 'danger' || a.type === 'warn') && (
+                                  <div className="mt-3 flex gap-2 flex-wrap">
+                                    <button onClick={() => setCallContact({name: patient.name, role: 'Patient', phone: patient.patientPhone})} className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5">
+                                      <Phone size={12}/> Call Patient
+                                    </button>
+                                    {patient.caregivers.length > 0 && (
+                                      <button onClick={() => setCallContact({name: patient.caregivers[0].name, role: patient.caregivers[0].relation, phone: patient.caregivers[0].phone})} className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5">
+                                        <Phone size={12}/> Call {patient.caregivers[0].relation}
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          
+                          {patient.symptomLogs.map(log => (
+                            <div key={log.id} className="flex gap-3 pt-2 pb-3 border-b border-slate-800/50 last:border-0">
+                               <div className="mt-0.5 text-slate-500"><ClipboardList size={20}/></div>
+                               <div className="flex-1">
+                                 <div className="flex justify-between items-start mb-1">
+                                    <div className="text-sm font-bold text-white">Patient Logged: {log.symptoms.join(', ')}</div>
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                      log.severity === 'severe' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                      log.severity === 'moderate' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                                      'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                    }`}>
+                                      {log.severity}
+                                    </span>
+                                 </div>
+                                 <div className="text-xs text-slate-400 mb-2">{log.date}</div>
+                                 {log.notes && (
+                                    <div className="text-sm text-slate-300 bg-slate-950 p-3 rounded-lg border border-slate-800 italic">
+                                      "{log.notes}"
+                                    </div>
+                                 )}
+                               </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm">
+                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Care Team</h3>
+                         <div className="space-y-3">
+                           <div className="flex justify-between items-center">
+                             <div>
+                               <div className="text-sm text-white font-medium">Dr. D. Mensah</div>
+                               <div className="text-xs text-slate-500">Attending</div>
+                             </div>
+                           </div>
+                           <div className="flex justify-between items-center pt-2 border-t border-slate-800/50">
+                             <div>
+                               <div className="text-sm text-white font-medium">{patient.name}</div>
+                               <div className="text-xs text-slate-500">Patient</div>
+                             </div>
+                             <button onClick={() => setCallContact({name: patient.name, role: 'Patient', phone: patient.patientPhone})} className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors" title="Call Patient">
+                               <Phone size={14} />
+                             </button>
+                           </div>
+                           {patient.caregivers.map(c => (
+                              <div key={c.id} className="flex justify-between items-center pt-2 border-t border-slate-800/50">
+                                <div>
+                                  <div className="text-sm text-white font-medium">{c.name}</div>
+                                  <div className="text-xs text-slate-500">{c.relation} (Authorized)</div>
+                                </div>
+                                <button onClick={() => setCallContact({name: c.name, role: c.relation, phone: c.phone})} className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors" title={`Call ${c.relation}`}>
+                                  <Phone size={14} />
+                                </button>
+                              </div>
+                           ))}
+                         </div>
+                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {chartTab === "telemetry" && (
+                  <div className="p-6 space-y-6 animate-fade-in">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-black text-white flex items-center gap-2"><Activity size={20} className="text-emerald-500"/> Continuous Telemetry Flowsheet</h3>
+                      <div className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded border border-emerald-500/20">
+                        Source: AirSense Wearable (UDI: {patient.patchId})
+                      </div>
+                    </div>
+
+                    {patient.status === 'high' && (
+                      <div className="bg-red-500/10 border-l-4 border-red-500 p-4 rounded text-red-200 shadow-sm flex items-start gap-3">
+                        <AlertTriangle size={20} className="text-red-500 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <strong className="block mb-1 text-red-400">Critical Exacerbation Event Logged</strong>
+                          Predictive model threshold exceeded (73% Risk). Tulobuterol 2mg auto-administered at 07:32.
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      {[
+                        { label: "Wheeze Index", val: patient.wheeze, unit: "/10", icon: Activity, trend: patient.wheeze > 4, trendTxt: patient.wheeze > 4 ? "↑ Elevated" : "↓ Baseline" },
+                        { label: "Attack Probability", val: patient.risk, unit: "%", icon: AlertTriangle, trend: patient.risk > 60, trendTxt: patient.risk > 60 ? "↑ Threshold crossed" : "↓ Safe range" },
+                        { label: "Local PM2.5", val: patient.pm25, unit: " µg/m³", icon: Wind, trend: patient.pm25 > 15, trendTxt: patient.pm25 > 15 ? "↑ Poor air quality" : "✓ Safe levels" },
+                        { label: "Drug Deliveries", val: patient.deployments, unit: " today", icon: Syringe, trend: patient.deployments > 0, trendTxt: patient.deployments > 0 ? "Tulobuterol 2mg" : "None" },
+                      ].map((m, i) => (
+                        <div key={i} className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm">
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider flex justify-between">
+                            {m.label} <m.icon size={14} className="text-slate-500"/>
+                          </div>
+                          <div className="text-2xl font-black text-white mt-2">{m.val} <span className="text-sm text-slate-500 font-medium">{m.unit}</span></div>
+                          <div className={`text-xs font-bold mt-1 ${m.trend ? (m.label === 'Drug Deliveries' ? 'text-amber-400' : 'text-red-400') : 'text-emerald-400'}`}>{m.trendTxt}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl shadow-sm">
+                      <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2">24h Acoustic Wheeze Trend</h4>
+                      <div className="h-56 w-full relative">
+                        <MiniChart data={patient.history} colorHex={patient.status === 'high' ? '#ef4444' : '#10b981'} gradientId="ehmisFlowsheetGrad" height={224} />
+                      </div>
+                      <div className="flex justify-between text-xs font-medium text-slate-500 mt-4 border-t border-slate-800 pt-4">
+                        <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>Now</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {chartTab === "meds" && (
+                  <div className="p-6 animate-fade-in space-y-6">
+                    <div>
+                      <h3 className="text-lg font-black text-white mb-4 flex items-center gap-2"><Pill size={20} className="text-emerald-500"/> Active Medications</h3>
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-sm max-w-3xl overflow-hidden">
+                        
+                        <div className="p-5 border-b border-slate-800">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-bold text-white text-lg">Fluticasone Propionate (ICS)</div>
+                              <div className="text-sm text-slate-400 mt-1">250 mcg, Inhale 2 puffs twice daily</div>
+                            </div>
+                            <span className="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded text-xs font-bold">Asthma Control</span>
+                          </div>
+                        </div>
+
+                        <div className="p-5 border-b border-slate-800">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-bold text-white text-lg">Cetirizine</div>
+                              <div className="text-sm text-slate-400 mt-1">10 mg, Take 1 tablet by mouth daily</div>
+                            </div>
+                            <span className="px-2.5 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded text-xs font-bold">Allergic Rhinitis</span>
+                          </div>
+                        </div>
+
+                        <div className="p-5 border-b border-slate-800">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-bold text-white text-lg">Montelukast (LTRA)</div>
+                              <div className="text-sm text-slate-400 mt-1">10 mg, Take 1 tablet by mouth at bedtime</div>
+                            </div>
+                            <span className="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded text-xs font-bold">Asthma Control</span>
+                          </div>
+                        </div>
+
+                        <div className="p-5 bg-slate-950/50">
+                          <div className="text-xs text-slate-500 font-bold uppercase mb-2">Automated PRN Formularies (via Device)</div>
+                          <div className="text-sm text-white font-medium flex items-center gap-2">
+                            <Activity size={14} className="text-emerald-500"/> Tulobuterol 2mg LABA patch formulation
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-black text-white mb-4 flex items-center gap-2 text-slate-400"><FolderOpen size={20}/> Past Medications</h3>
+                      <div className="bg-slate-900/50 border border-slate-800 rounded-xl shadow-sm max-w-3xl overflow-hidden opacity-75">
+                        <div className="p-5">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-bold text-white text-lg line-through">Prednisone</div>
+                              <div className="text-sm text-slate-400 mt-1">40 mg, Take 1 tablet by mouth daily for 5 days</div>
+                            </div>
+                            <span className="px-2.5 py-1 bg-slate-800 text-slate-400 border border-slate-700 rounded text-xs font-bold">Completed Last Month</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {chartTab === "notes" && (
+                  <div className="p-6 h-full flex flex-col animate-fade-in">
+                    <div className="flex justify-between items-center mb-6 flex-shrink-0 border-b border-slate-800 pb-4">
+                       <h3 className="text-lg font-black text-white flex items-center gap-2"><FileText size={20} className="text-emerald-500"/> Progress Notes</h3>
+                       <button onClick={() => setShowNoteModal(true)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-sm shadow-sm transition-colors flex items-center gap-2">
+                         <Plus size={16}/> New Note
+                       </button>
+                    </div>
+                    <div className="flex-1 space-y-4">
+                       {patient.notes.map((n) => (
+                         <div key={n.id} className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm">
+                           <div className="flex justify-between items-center mb-3 border-b border-slate-800 pb-3">
+                             <span className="font-bold text-white">{n.author}</span>
+                             <span className="text-xs font-bold text-slate-500">{n.date}</span>
+                           </div>
+                           <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{n.text}</p>
+                         </div>
+                       ))}
+                       {patient.notes.length === 0 && (
+                         <div className="text-center p-8 text-slate-500 text-sm">No clinical notes recorded.</div>
+                       )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {showNoteModal && <NoteModal onClose={() => setShowNoteModal(false)} onSave={handleAddNote} patientName={patient.name} />}
+              {callContact && <CallModal contact={callContact} onClose={() => setCallContact(null)} />}
+            </div>
+          );
+        }
+
+        function LinkPatientModal({ onClose, onLink }) {
+          const [code, setCode] = useState('');
+          const [status, setStatus] = useState('input'); 
+          const handleLink = () => {
+            if (!code.trim() || code.length < 5) return;
+            setStatus('verifying');
+            setTimeout(() => {
+              setStatus('success');
+            }, 2000);
+          };
+
+          const handleDone = () => {
+
+            const newPatient = {
+                id: Date.now(), name: "Afia Konadu", age: 64, avatar: "AK", color: "text-purple-700", bg: "bg-purple-100",
+                mrn: "CUH-00892", dob: "14-Aug-1961", gender: "Female",
+                patchId: "AS-00892", battery: 100, lastSync: "Just now",
+                patientPhone: "+233 55 999 8888", caregiverPhone: "+233 24 444 5555", providerPhone: "+233 24 111 2222",
+                risk: 8, wheeze: 0.5, pm25: 12, pm10: 18, humidity: 60, temp: 25,
+                deployments: 0, status: "stable",
+                caregivers: [{ id: 1, name: "Joshua Konadu", relation: "Caregiver", phone: "+233 24 444 5555" }],
+                alerts: [
+                  { id: Date.now(), type: "info", icon: <CheckCircle2 size={20}/>, title: "Device Linked to a caregiver", time: "Just now", detail: "Caregiver access successfully established and verified using the secure Partner Code." }
+                ],
+                symptomLogs: [],
+                history: [1.0, 0.8, 0.9, 0.7, 0.5, 0.4, 0.3, 0.2, 0.2, 0.1, 0.3, 0.2, 0.1, 0.5],
+                notes: []
+            };
+            onLink(newPatient);
+            onClose();
+          };
+
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={onClose}></div>
+              <div className="relative bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-fade-in flex flex-col items-center text-center z-10">
+                <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-full transition-colors">
+                   <X size={16} />
+                </button>
+                
+                {status === 'input' && (
+                  <>
+                    <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-4">
+                      <UserPlus size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">Link a Loved One</h3>
+                    <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+                      Enter the secure Partner Code generated from the patient's AirSense app to gain access.
+                    </p>
+                    <input 
+                      type="text" 
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.toUpperCase())}
+                      placeholder="e.g. AS-X92B-45" 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-4 text-center text-xl font-mono font-bold text-emerald-400 tracking-widest focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-700 mb-6 uppercase" 
+                      autoFocus
+                    />
+                    <button onClick={handleLink} disabled={code.length < 5} className="w-full py-3.5 bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-900/50 flex justify-center items-center gap-2">
+                      <Key size={16} /> Verify & Link
+                    </button>
+                  </>
+                )}
+                
+                {status === 'verifying' && (
+                  <div className="py-8 flex flex-col items-center">
+                    <RefreshCw size={48} className="text-emerald-500 mb-6 animate-spin" style={{ animationDuration: '2s' }} />
+                    <h4 className="font-bold text-white text-lg mb-2">Verifying Partner Code...</h4>
+                    <p className="text-center text-sm text-slate-400 max-w-[250px]">Establishing a secure, encrypted link to the patient's telemetry stream.</p>
+                  </div>
+                )}
+
+                {status === 'success' && (
+                  <div className="py-6 flex flex-col items-center animate-fade-in">
+                    <div className="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-6 border border-emerald-500/30">
+                      <ShieldCheck size={40} className="animate-pulse" />
+                    </div>
+                    <h4 className="font-bold text-white text-xl mb-2">Link Established!</h4>
+                    <p className="text-center text-sm text-slate-400 mb-8 leading-relaxed">
+                      You are now securely linked to <strong className="text-white">Afia Konadu</strong>. You will receive critical alerts and can view their dashboard.
+                    </p>
+                    <button onClick={handleDone} className="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-900/50">
+                      Go to Dashboard
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }
+
+        function CaregiverPortal({ patientsData, setPatientsData, onBack }) {
+          const [activePatientId, setActivePatientId] = useState(null);
+          const [callContact, setCallContact] = useState(null);
+          const [showLinkModal, setShowLinkModal] = useState(false);
+
+          if (!activePatientId) {
+            return (
+              <div className="min-h-screen bg-slate-950 flex justify-center p-0 sm:p-6 font-sans text-slate-200">
+                <style>{customStyles}</style>
+                <div className="max-w-4xl w-full bg-slate-900 sm:rounded-[2rem] shadow-xl sm:border border-slate-800 overflow-hidden flex flex-col min-h-screen sm:min-h-[800px] relative">
+                  <header className="bg-emerald-900 text-white p-6 sm:p-8 flex-shrink-0 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-10"><Users size={120} /></div>
+                    <button onClick={onBack} className="flex items-center gap-2 text-emerald-200 hover:text-white text-sm font-semibold mb-6 transition-colors relative z-10"><ChevronLeft size={16} /> Back to Portals</button>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end relative z-10 gap-4">
+                      <div>
+                        <p className="text-emerald-200 font-medium mb-1">Caregiver Dashboard</p>
+                        <h1 className="text-3xl font-extrabold tracking-tight">My Loved Ones</h1>
+                      </div>
+                      <button onClick={() => setShowLinkModal(true)} className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 rounded-xl font-bold text-sm transition-colors shadow-lg shadow-emerald-500/30 flex items-center gap-2 w-full sm:w-auto justify-center">
+                        <UserPlus size={16} /> Add Loved One
+                      </button>
+                    </div>
+                  </header>
+                  <div className="p-6 sm:p-8 flex-1 overflow-y-auto bg-slate-950">
+                    <FadeIn className="space-y-4">
+                      {patientsData.map(patient => (
+                        <div key={patient.id} onClick={() => setActivePatientId(patient.id)} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm hover:shadow-emerald-500/10 group relative overflow-hidden">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+                            <div className="flex items-center gap-4">
+                              <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0 ${patient.bg} ${patient.color}`}>{patient.avatar}</div>
+                              <div>
+                                <h3 className="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">{patient.name}</h3>
+                                <div className="text-sm text-slate-400 flex items-center gap-2 mt-0.5">
+                                  <span className="flex items-center gap-1"><Info size={14}/> Patch {patient.patchId}</span>
+                                  <span className="hidden sm:inline">•</span>
+                                  <BatteryIndicator level={patient.battery} className="hidden sm:flex" />
+                                </div>
+                              </div>
+                            </div>
+                            <StatusBadge status={patient.status} />
+                          </div>
+                          {patient.status === 'high' && (
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-4 text-sm text-red-300 flex items-start gap-2">
+                              <AlertTriangle size={16} className="mt-0.5 flex-shrink-0 text-red-400" />
+                              <span>Critical breathing pattern detected today. Predictive auto-deployment occurred.</span>
+                            </div>
+                          )}
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="bg-slate-800/50 rounded-xl p-3 text-center sm:text-left"><div className="text-xs text-slate-400 mb-1">Wheeze Index</div><div className="text-lg font-bold text-white">{patient.wheeze} <span className="text-xs text-slate-500 font-medium">/10</span></div></div>
+                            <div className="bg-slate-800/50 rounded-xl p-3 text-center sm:text-left"><div className="text-xs text-slate-400 mb-1">Attack Risk</div><div className={`text-lg font-bold ${patient.risk > 60 ? 'text-red-400' : patient.risk > 30 ? 'text-amber-400' : 'text-emerald-400'}`}>{patient.risk}%</div></div>
+                            <div className="bg-slate-800/50 rounded-xl p-3 text-center sm:text-left"><div className="text-xs text-slate-400 mb-1">Recent Alerts</div><div className="text-lg font-bold text-white">{patient.alerts.length}</div></div>
+                          </div>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-4 transition-all duration-300 hidden sm:block text-emerald-400"><ChevronLeft size={24} className="rotate-180" /></div>
+                        </div>
+                      ))}
+                    </FadeIn>
+                  </div>
+                  {showLinkModal && <LinkPatientModal onClose={() => setShowLinkModal(false)} onLink={(p) => setPatientsData([...patientsData, p])} />}
+                </div>
+              </div>
+            );
+          }
+
+          const patient = patientsData.find(p => p.id === activePatientId) || patientsData[0];
+
+          return (
+            <div className="min-h-screen bg-slate-950 flex justify-center p-0 sm:p-6 font-sans text-slate-200">
+              <style>{customStyles}</style>
+              <div className="max-w-4xl w-full bg-slate-900 sm:rounded-[2rem] shadow-xl sm:border border-slate-800 overflow-hidden flex flex-col min-h-screen sm:min-h-[800px]">
+                <header className="bg-emerald-900 text-white p-6 sm:p-8 flex-shrink-0 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-10"><Activity size={120} /></div>
+                  <button onClick={() => setActivePatientId(null)} className="flex items-center gap-2 text-emerald-200 hover:text-white text-sm font-semibold mb-6 transition-colors relative z-10"><ChevronLeft size={16} /> Back to Dashboard</button>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end relative z-10 gap-4">
+                    <div>
+                      <p className="text-emerald-200 font-medium mb-1">Caregiver Overview</p><h1 className="text-3xl font-extrabold tracking-tight">{patient.name}</h1>
+                      <div className="flex items-center gap-3 mt-3 text-sm text-emerald-100"><span className="flex items-center gap-1"><Info size={14}/> Patch {patient.patchId}</span><span>•</span><BatteryIndicator level={patient.battery} className="text-emerald-100" /></div>
+                    </div>
+                    <button onClick={() => setCallContact({name: 'Emergency Services', role: 'Ambulance', phone: '112'})} className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-sm transition-colors shadow-lg shadow-red-500/30 flex items-center gap-2 w-full sm:w-auto justify-center"><Phone size={16} /> Emergency Contact</button>
+                  </div>
+                </header>
+                <div className="p-6 sm:p-8 flex-1 overflow-y-auto bg-slate-950">
+                  <FadeIn>
+                    {patient.status === "high" && (
+                      <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 mb-6 shadow-sm">
+                        <h3 className="text-red-400 font-bold text-lg flex items-center gap-2 mb-2"><ShieldAlert size={20} /> Urgent: Preventative action taken for {patient.name.split(' ')[0]}</h3>
+                        <p className="text-red-300 text-sm leading-relaxed mb-4">His patch detected a high-risk breathing pattern at 07:14. The device auto-administered a 2mg sustained-release dose of Tulobuterol at 07:32. <strong className="font-bold text-white">Please check on him and contact Dr. Mensah if symptoms don't improve.</strong></p>
+                        <div className="flex gap-3">
+                          <button onClick={() => setCallContact({name: patient.name, role: 'Patient', phone: patient.patientPhone})} className="px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition-colors shadow-md shadow-red-900/50">Call {patient.name.split(' ')[0]}</button>
+                          <button onClick={() => setCallContact({name: 'Dr. Mensah', role: 'Provider', phone: patient.providerPhone})} className="px-4 py-2 bg-slate-900 text-red-400 border border-red-500/30 rounded-xl text-sm font-bold hover:bg-red-500/10 transition-colors">Call Doctor</button>
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                      {[{ label: "Current Status", val: patient.risk > 60 ? "High Risk" : "Stable", color: patient.risk > 60 ? "text-red-400" : "text-emerald-400" }, { label: "Wheeze Level", val: patient.wheeze + "/10", color: "text-white" }, { label: "Local Air (PM2.5)", val: patient.pm25, color: patient.pm25 > 15 ? "text-amber-400" : "text-emerald-400" }, { label: "Meds Given", val: patient.deployments + "x", color: patient.deployments > 0 ? "text-red-400" : "text-emerald-400" }].map((m, i) => (
+                        <div key={i} className="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-sm flex flex-col justify-center"><span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{m.label}</span><span className={`text-xl font-bold ${m.color}`}>{m.val}</span></div>
+                      ))}
+                    </div>
+                    
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm mb-6">
+                      <h3 className="font-bold text-white mb-4">Today's Breathing Pattern</h3>
+                      <div className="h-40"><MiniChart data={patient.history} colorHex={patient.risk > 60 ? "#ef4444" : "#10b981"} gradientId="cgWheezeGrad" height={160} /></div>
+                      <p className="text-sm text-slate-300 mt-4 leading-relaxed bg-slate-800 border-slate-700 p-4 rounded-xl border">{patient.risk > 60 ? `⚠ ${patient.name.split(' ')[0]}'s wheeze index has been rising since midnight. The patch flagged a critical predictive threshold at 07:14 and administered preventative medication automatically.` : `✓ ${patient.name.split(' ')[0]}'s breathing has been stable all day. No interventions needed.`}</p>
+                    </div>
+
+                    <h3 className="font-bold text-white mb-4 text-lg">Care Team Contacts</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {[{ n: "Dr. Mensah", r: "Pulmonologist", ic: Stethoscope, bg: "bg-blue-500/10", c: "text-blue-400", p: patient.providerPhone }, { n: "Emergency", r: "Ambulance", ic: ShieldAlert, bg: "bg-red-500/10", c: "text-red-400", p: "112" }, { n: patient.name.split(' ')[0], r: "Patient", ic: User, bg: "bg-emerald-500/10", c: "text-emerald-400", p: patient.patientPhone }].map((c, i) => (
+                        <div key={i} className="bg-slate-900 rounded-2xl border border-slate-800 p-5 flex flex-col items-center text-center shadow-sm"><div className={`w-14 h-14 rounded-full ${c.bg} ${c.c} flex items-center justify-center mb-3`}><c.ic size={24} /></div><div className="font-bold text-white">{c.n}</div><div className="text-xs text-slate-400 mb-4">{c.r}</div><button onClick={() => setCallContact({name: c.n, role: c.r, phone: c.p})} className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold transition-colors">Call</button></div>
+                      ))}
+                    </div>
+                  </FadeIn>
+                </div>
+              </div>
+              {callContact && <CallModal contact={callContact} onClose={() => setCallContact(null)} />}
+            </div>
+          );
+        }
+
+        function SymptomLogger({ onClose, onSave }) {
+          const [severity, setSeverity] = useState('mild');
+          const [selectedSymptoms, setSelectedSymptoms] = useState([]);
+          const [notes, setNotes] = useState('');
+
+          const symptomsList = ["Coughing", "Wheezing", "Chest Tightness", "Shortness of Breath", "Woke up at night"];
+
+          const toggleSymptom = (sym) => {
+            setSelectedSymptoms(prev => 
+              prev.includes(sym) ? prev.filter(s => s !== sym) : [...prev, sym]
+            );
+          };
+
+          const handleSave = () => {
+            if (selectedSymptoms.length === 0 && notes.trim() === '') return;
+            
+            const newLog = {
+              id: Date.now(),
+              date: "Just now",
+              severity,
+              symptoms: selectedSymptoms,
+              notes: notes.trim()
+            };
+            onSave(newLog);
+          };
+
+          return (
+            <div className="absolute inset-0 z-50 flex flex-col justify-end">
+              <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={onClose}></div>
+              
+              <div className="relative bg-emerald-950 border-t border-white/10 rounded-t-[2rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] animate-slide-up flex flex-col max-h-[90%]">
+                <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+                
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold text-white">Log Symptoms</h3>
+                  <button onClick={onClose} className="p-2 bg-white/5 hover:bg-white/10 text-white/60 rounded-full transition-colors">
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 pb-6">
+                  <div>
+                    <label className="block text-sm font-bold text-white/80 mb-3">Overall Severity</label>
+                    <div className="flex gap-2">
+                      {[
+                        { id: 'mild', label: 'Mild', color: 'bg-emerald-500', text: 'text-emerald-950' },
+                        { id: 'moderate', label: 'Moderate', color: 'bg-amber-500', text: 'text-amber-950' },
+                        { id: 'severe', label: 'Severe', color: 'bg-red-500', text: 'text-red-950' }
+                      ].map(s => (
+                        <button 
+                          key={s.id}
+                          onClick={() => setSeverity(s.id)}
+                          className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all border ${
+                            severity === s.id 
+                              ? `${s.color} ${s.text} border-transparent shadow-lg` 
+                              : `bg-white/5 text-white/60 border-white/10 hover:bg-white/10`
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-white/80 mb-3">What are you feeling?</label>
+                    <div className="flex flex-wrap gap-2">
+                      {symptomsList.map(sym => {
+                        const isSelected = selectedSymptoms.includes(sym);
+                        return (
+                          <button
+                            key={sym}
+                            onClick={() => toggleSymptom(sym)}
+                            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                              isSelected 
+                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' 
+                                : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10'
+                            }`}
+                          >
+                            {sym}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-white/80 mb-3">Additional Notes & Actions</label>
+                    <textarea 
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="e.g. Used rescue inhaler 2 puffs, feeling better now..."
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-2xl p-4 min-h-[100px] focus:outline-none focus:border-emerald-500/50 resize-none placeholder:text-white/30 text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-auto pt-4">
+                  <button 
+                    onClick={handleSave}
+                    disabled={selectedSymptoms.length === 0 && notes.trim() === ''}
+                    className="w-full py-4 bg-emerald-500 disabled:bg-emerald-500/30 disabled:text-emerald-950/50 text-emerald-950 rounded-2xl font-bold text-base hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20"
+                  >
+                    Save Entry
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        function CaregiverManagerModal({ patient, onClose, onSave }) {
+          const [caregivers, setCaregivers] = useState(patient.caregivers || []);
+          const [newName, setNewName] = useState('');
+          const [newRelation, setNewRelation] = useState('');
+          const [newPhone, setNewPhone] = useState('');
+          const [generatedCode, setGeneratedCode] = useState(null);
+          const [copied, setCopied] = useState(false);
+
+          const handleGenerateCode = () => {
+            if (!newName.trim() || !newPhone.trim()) return;
+            const code = `AS-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.floor(10 + Math.random() * 90)}`;
+            setGeneratedCode(code);
+          };
+
+          const handleConfirmAdd = () => {
+            const newCaregiver = {
+              id: Date.now(),
+              name: newName.trim(),
+              relation: newRelation.trim() || "Caregiver",
+              phone: newPhone.trim(),
+              status: 'pending' 
+            };
+            setCaregivers([...caregivers, newCaregiver]);
+            setNewName('');
+            setNewRelation('');
+            setNewPhone('');
+            setGeneratedCode(null);
+            setCopied(false);
+          };
+
+          const handleCopy = () => {
+            try {
+              navigator.clipboard.writeText(generatedCode);
+            } catch (err) {
+              const textArea = document.createElement("textarea");
+              textArea.value = generatedCode;
+              document.body.appendChild(textArea);
+              textArea.select();
+              document.execCommand("copy");
+              document.body.removeChild(textArea);
+            }
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          };
+
+          const handleRemove = (id) => {
+            setCaregivers(caregivers.filter(c => c.id !== id));
+          };
+
+          return (
+            <div className="absolute inset-0 z-50 flex flex-col justify-end">
+              <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={onClose}></div>
+              
+              <div className="relative bg-emerald-950 border-t border-white/10 rounded-t-[2rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] animate-slide-up flex flex-col max-h-[90%]">
+                <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+                
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-white">Manage Care Access</h3>
+                  <button onClick={onClose} className="p-2 bg-white/5 hover:bg-white/10 text-white/60 rounded-full transition-colors">
+                    <X size={20} />
+                  </button>
+                </div>
+                
+                {generatedCode ? (
+                  <div className="flex-1 flex flex-col items-center justify-center py-4 text-center animate-fade-in overflow-y-auto no-scrollbar">
+                    <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-6">
+                      <Key size={32} />
+                    </div>
+                    <h4 className="text-xl font-bold text-white mb-2">Partner Code Generated</h4>
+                    <p className="text-white/60 text-sm mb-6 leading-relaxed max-w-[280px]">
+                      Share this secure pairing code with <strong className="text-white">{newName}</strong>. They must enter it in the Caregiver App to establish a HIPAA-compliant link.
+                    </p>
+                    
+                    <div className="bg-slate-950 border border-white/10 rounded-2xl p-6 w-full mb-6 relative group">
+                      <div className="text-3xl font-mono font-bold text-emerald-400 tracking-[0.2em]">
+                        {generatedCode}
+                      </div>
+                      <p className="text-white/40 text-[10px] mt-3 uppercase tracking-wider flex items-center justify-center gap-1">
+                        <Clock size={12}/> Expires in 15 minutes
+                      </p>
+                    </div>
+
+                    <div className="flex gap-3 w-full mb-6">
+                      <button onClick={handleCopy} className="flex-1 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl font-bold text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+                        {copied ? <><CheckCircle2 size={18} className="text-emerald-400"/> Copied</> : <><Copy size={18}/> Copy Code</>}
+                      </button>
+                      <button className="flex-1 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl font-bold text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+                        <Share2 size={18}/> Share
+                      </button>
+                    </div>
+                    
+                    <button onClick={handleConfirmAdd} className="w-full py-4 bg-emerald-500 text-emerald-950 rounded-2xl font-bold text-base hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20">
+                      Done
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-white/60 text-xs mb-6 leading-relaxed">
+                      Add or remove trusted individuals who can monitor your respiratory telemetry, receive emergency alerts, and view your medication logs.
+                    </p>
+
+                    <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 pb-6">
+                      {/* Active Caregivers */}
+                      <div>
+                        <h4 className="text-sm font-bold text-white/80 mb-3">Active Data Sharing</h4>
+                        {caregivers.length === 0 ? (
+                          <div className="text-white/40 text-xs italic bg-white/5 p-4 rounded-xl text-center border border-white/5">
+                            No caregivers currently have access to your data.
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {caregivers.map(c => (
+                              <div key={c.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center">
+                                <div>
+                                  <div className="text-white font-bold text-sm">{c.name}</div>
+                                  <div className="text-white/50 text-xs mt-0.5 flex items-center gap-2">
+                                    {c.relation} • {c.phone}
+                                    {c.status === 'pending' && (
+                                      <span className="flex items-center gap-1 text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide">
+                                        <Clock size={10}/> PENDING LINK
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <button onClick={() => handleRemove(c.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors" title="Revoke Access">
+                                  <Trash2 size={18} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Add New Caregiver */}
+                      <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                        <h4 className="text-sm font-bold text-white/80 mb-4 flex items-center gap-2">
+                          <UserPlus size={16}/> Grant New Access
+                        </h4>
+                        <div className="space-y-3">
+                          <input 
+                            type="text" 
+                            placeholder="Full Name (e.g. John Doe)" 
+                            value={newName} 
+                            onChange={e => setNewName(e.target.value)} 
+                            className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500/50 text-sm placeholder:text-white/30" 
+                          />
+                          <div className="grid grid-cols-2 gap-3">
+                            <input 
+                              type="text" 
+                              placeholder="Relationship" 
+                              value={newRelation} 
+                              onChange={e => setNewRelation(e.target.value)} 
+                              className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500/50 text-sm placeholder:text-white/30" 
+                            />
+                            <input 
+                              type="tel" 
+                              placeholder="Phone Number" 
+                              value={newPhone} 
+                              onChange={e => setNewPhone(e.target.value)} 
+                              className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500/50 text-sm placeholder:text-white/30" 
+                            />
+                          </div>
+                          <button 
+                            onClick={handleGenerateCode} 
+                            disabled={!newName.trim() || !newPhone.trim()} 
+                            className="w-full py-3 bg-emerald-500/20 disabled:bg-white/5 disabled:text-white/30 text-emerald-400 rounded-xl font-bold text-sm hover:bg-emerald-500/30 transition-colors mt-2 flex justify-center items-center gap-2"
+                          >
+                            <Key size={16}/> Generate Partner Code
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto pt-4">
+                      <button 
+                        onClick={() => onSave(caregivers)}
+                        className="w-full py-4 bg-emerald-500 text-emerald-950 rounded-2xl font-bold text-base hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        }
+
+        function PatientPortal({ patient, setPatientsData, onBack }) {
+          const [tab, setTab] = useState("home");
+          const [syncAnim, setSyncAnim] = useState(false);
+          const [synced, setSynced] = useState(false);
+          const [callContact, setCallContact] = useState(null);
+
+          const [showLogger, setShowLogger] = useState(false);
+          const [showCaregiverManager, setShowCaregiverManager] = useState(false);
+
+          const [impendingDeployment, setImpendingDeployment] = useState(false);
+          const [countdown, setCountdown] = useState(15);
+          const [deploymentStatus, setDeploymentStatus] = useState(null);
+          const [isScrolled, setIsScrolled] = useState(false);
+          const scrollRef = useRef(null);
+
+          useEffect(() => {
+            if (scrollRef.current) {
+              scrollRef.current.scrollTop = 0;
+            }
+            setIsScrolled(false);
+          }, [tab]);
+
+          useEffect(() => {
+            let timer;
+            if (impendingDeployment && countdown > 0) {
+              timer = setTimeout(() => setCountdown(c => c - 1), 1000);
+            } else if (impendingDeployment && countdown === 0) {
+              handleDeploy();
+            }
+            return () => clearTimeout(timer);
+          }, [impendingDeployment, countdown]);
+
+          const handleCancelDeploy = () => {
+            setImpendingDeployment(false);
+            setDeploymentStatus('cancelled');
+            setCountdown(15);
+          };
+
+          const handleDeploy = () => {
+            setImpendingDeployment(false);
+            setDeploymentStatus('deployed');
+            setCountdown(15);
+          };
+
+          const triggerSimulation = () => {
+            setImpendingDeployment(true);
+            setDeploymentStatus(null);
+            setCountdown(15);
+          };
+
+          function doSync() {
+            setSyncAnim(true);
+            setTimeout(() => { setSyncAnim(false); setSynced(true); }, 2500);
+          }
+
+          const handleSaveSymptom = (newLog) => {
+            setPatientsData(prev => prev.map(p => 
+              p.id === patient.id ? { ...p, symptomLogs: [newLog, ...p.symptomLogs] } : p
+            ));
+            setShowLogger(false);
+            setTab("symptoms");
+          };
+
+          const handleUpdateCaregivers = (updatedCaregivers) => {
+            setPatientsData(prev => prev.map(p => 
+              p.id === patient.id ? { ...p, caregivers: updatedCaregivers } : p
+            ));
+            setShowCaregiverManager(false);
+          };
+
+          return (
+            <div className="min-h-screen bg-slate-950 flex justify-center items-center p-0 sm:p-8 font-sans">
+              <style>{customStyles}</style>
+              
+              <div className="w-full max-w-[400px] h-[100dvh] sm:h-[850px] bg-emerald-950 sm:rounded-[3rem] shadow-2xl sm:border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
+                
+                <div className={`px-6 transition-all duration-500 ${isScrolled ? 'pt-6 pb-4 shadow-lg bg-emerald-950/90 backdrop-blur-md' : 'pt-12 pb-6 bg-gradient-to-b from-emerald-900 to-emerald-950/50'} relative z-10`}>
+                  <div className={`flex justify-between items-center transition-all duration-500 overflow-hidden origin-top ${isScrolled ? 'max-h-0 opacity-0 mb-0' : 'max-h-16 opacity-100 mb-8'}`}>
+                    <div>
+                      <p className="text-emerald-400/80 text-sm font-medium mb-0.5">Good morning,</p>
+                      <h1 className="text-white text-2xl font-bold tracking-tight">{patient.name.split(' ')[0]} 👋</h1>
+                    </div>
+                    <div className="flex gap-4 items-center">
+                      <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/80 hover:bg-white/20 transition-colors">
+                        <LogOut size={18} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={`rounded-3xl border backdrop-blur-md relative overflow-hidden transition-all duration-500 ${
+                    patient.status === 'high' ? 'bg-red-500/10 border-red-500/30' : 'bg-emerald-500/10 border-emerald-500/30'
+                  } ${isScrolled ? 'p-4' : 'p-6'}`}>
+                    <div className={`absolute transition-all duration-500 ${isScrolled ? '-right-4 -top-4 opacity-5 scale-50' : '-right-6 -top-6 opacity-10 scale-100'}`}>
+                      <Activity size={140} className={patient.status === 'high' ? 'text-red-500' : 'text-emerald-500'} />
+                    </div>
+                    
+                    <div className="relative z-10 flex flex-col justify-center w-full">
+                      <div className={`flex transition-all duration-500 ${isScrolled ? 'flex-row items-center justify-between' : 'flex-col items-start'}`}>
+                        <div>
+                          <p className={`text-white/60 font-medium transition-all duration-500 ${isScrolled ? 'text-xs mb-0' : 'text-sm mb-1'}`}>Current Risk Level</p>
+                          <div className={`font-extrabold tracking-tighter transition-all duration-500 ${patient.status === 'high' ? 'text-red-400' : 'text-emerald-400'} ${isScrolled ? 'text-4xl' : 'text-6xl'}`}>
+                            {patient.risk}<span className={`font-semibold opacity-60 transition-all duration-500 ${isScrolled ? 'text-xl' : 'text-2xl'}`}>%</span>
+                          </div>
+                        </div>
+
+                        <div className={`transition-all duration-500 ${isScrolled ? 'text-right' : 'w-full mt-2'}`}>
+                          <p className={`text-white/80 font-medium transition-all duration-500 ${isScrolled ? 'text-xs mb-1' : 'text-sm'}`}>
+                            {patient.status === "high" ? "⚠ High Risk" : "✓ Breathing normally"}
+                          </p>
+                          <div className={`bg-black/20 rounded-full overflow-hidden transition-all duration-500 ${isScrolled ? 'h-1.5 w-24 ml-auto' : 'h-2 w-full mt-4'}`}>
+                            <div 
+                              className={`h-full rounded-full transition-all duration-1000 ${patient.status === 'high' ? 'bg-red-500' : 'bg-emerald-500'}`}
+                              style={{ width: `${patient.risk}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className={`flex justify-between items-center transition-all duration-500 overflow-hidden ${isScrolled ? 'max-h-0 opacity-0 mt-0 border-transparent' : 'max-h-12 opacity-100 mt-4 pt-4 border-white/10 border-t'}`}>
+                        <span className="text-xs text-white/50 font-medium">ID: {patient.patchId}</span>
+                        <BatteryIndicator level={patient.battery} className="text-white/50" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div 
+                  ref={scrollRef}
+                  className="flex-1 overflow-y-auto no-scrollbar pb-24 px-6 relative z-0"
+                  onScroll={(e) => setIsScrolled(e.target.scrollTop > 20)}
+                >
+                  <FadeIn key={tab}>
+                    {tab === "home" && (
+                      <div className="space-y-4">
+                        
+                        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 flex justify-between items-center shadow-lg shadow-emerald-900/20">
+                          <div>
+                            <h3 className="text-white font-bold text-sm mb-1">How are you feeling?</h3>
+                            <p className="text-emerald-200/60 text-xs">Log symptoms for your doctor.</p>
+                          </div>
+                          <button 
+                            onClick={() => setShowLogger(true)}
+                            className="w-12 h-12 bg-emerald-500 text-emerald-950 rounded-xl flex items-center justify-center font-bold hover:bg-emerald-400 transition-all shadow-md active:scale-95"
+                          >
+                            <Plus size={24} />
+                          </button>
+                        </div>
+
+                        {deploymentStatus === 'cancelled' && (
+                          <div className="bg-amber-500/20 border border-amber-500/40 rounded-2xl p-4 animate-fade-in shadow-lg">
+                            <h3 className="text-amber-400 font-bold text-sm mb-2 flex items-center gap-2">
+                              <CheckCircle2 size={16}/> Deployment Cancelled
+                            </h3>
+                            <p className="text-white/80 text-xs leading-relaxed">
+                              You aborted the auto-deployment to use your manual inhaler. Caregiver alerts have been updated to reflect this.
+                            </p>
+                          </div>
+                        )}
+                        {deploymentStatus === 'deployed' && (
+                          <div className="bg-red-500/20 border border-red-500/40 rounded-2xl p-4 animate-fade-in shadow-lg">
+                            <h3 className="text-red-400 font-bold text-sm mb-2 flex items-center gap-2">
+                              <ShieldAlert size={16}/> Intervention Deployed
+                            </h3>
+                            <p className="text-white/80 text-xs leading-relaxed">
+                              Patch auto-administered Tulobuterol 2mg just now. Your care team has been notified. Rest and sit upright.
+                            </p>
+                          </div>
+                        )}
+
+                        {patient.status === "high" && !deploymentStatus && (
+                          <div className="bg-red-500/20 border border-red-500/40 rounded-2xl p-4">
+                            <h3 className="text-red-400 font-bold text-sm mb-2 flex items-center gap-2">
+                              <ShieldAlert size={16}/> Intervention Deployed
+                            </h3>
+                            <p className="text-white/80 text-xs leading-relaxed">
+                              Patch auto-administered a 2mg preventative dose of Tulobuterol just now. Your care team has been notified. Rest and sit upright.
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { l: "Wheeze Score", v: patient.wheeze + "/10", ic: Activity, c: "text-emerald-400" },
+                            { l: "Air Quality", v: "PM " + patient.pm25, ic: Wind, c: patient.pm25 > 15 ? "text-amber-400" : "text-emerald-400" },
+                            { l: "Humidity", v: patient.humidity + "%", ic: Droplets, c: "text-blue-400" },
+                            { l: "Temp", v: patient.temp + "°C", ic: Thermometer, c: "text-amber-400" },
+                          ].map((m, i) => (
+                            <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                              <m.ic size={20} className={`${m.c} mb-3`} />
+                              <div className={`text-xl font-bold ${m.c}`}>{m.v}</div>
+                              <div className="text-xs text-white/50 font-medium mt-1">{m.l}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                          <h3 className="text-white/80 text-sm font-bold mb-4">Manual Sync</h3>
+                          <p className="text-white/50 text-xs mb-4">Your patch syncs automatically, but you can force an upload if you feel unwell.</p>
+                          <button 
+                            onClick={doSync}
+                            disabled={syncAnim || synced}
+                            className={`w-full py-3.5 rounded-xl text-sm font-bold flex justify-center items-center gap-2 transition-all duration-300 ${
+                              synced ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white hover:bg-white/20 shadow-lg'
+                            }`}
+                          >
+                            {syncAnim ? <><RefreshCw size={18} className="animate-spin" /> Syncing via BLE...</> : 
+                             synced ? <><CheckCircle2 size={18} /> Data Sent to Dr. Mensah</> : 
+                             <><RefreshCw size={18} /> Sync Patch Now</>}
+                          </button>
+                        </div>
+
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                          <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-white/80 text-sm font-bold">Your Care Team</h3>
+                            <button 
+                              onClick={() => setShowCaregiverManager(true)}
+                              className="text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+                            >
+                              <Settings size={14} /> Manage Access
+                            </button>
+                          </div>
+                          
+                          {/* Dedicated Provider Section */}
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/80 flex-shrink-0">
+                              <Stethoscope size={20} />
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-white font-bold text-sm">Dr. Mensah</div>
+                              <div className="text-white/50 text-xs">Pulmonologist</div>
+                            </div>
+                            <button 
+                              onClick={() => setCallContact({name: "Dr. Mensah", role: "Pulmonologist", phone: patient.providerPhone})}
+                              className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl hover:bg-emerald-500/30 transition-colors flex items-center gap-2"
+                            >
+                              <Phone size={16} />
+                            </button>
+                          </div>
+
+                          {/* Dynamically List Caregivers */}
+                          {patient.caregivers.map((c) => (
+                            <div key={c.id} className="flex items-center gap-3 mb-4 last:mb-0">
+                              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/80 flex-shrink-0">
+                                <User size={20} />
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-white font-bold text-sm">{c.name}</div>
+                                <div className="text-white/50 text-xs">{c.relation}</div>
+                              </div>
+                              <button 
+                                onClick={() => setCallContact({name: c.name, role: c.relation, phone: c.phone})}
+                                className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl hover:bg-emerald-500/30 transition-colors flex items-center gap-2"
+                              >
+                                <Phone size={16} />
+                              </button>
+                            </div>
+                          ))}
+                          
+                          {patient.caregivers.length === 0 && (
+                            <div className="text-white/40 text-xs italic text-center py-2">No personal caregivers assigned.</div>
+                          )}
+
+                          <div className="text-white/30 text-[10px] mt-4 text-center border-t border-white/10 pt-3">Data & alerts are securely shared with this team</div>
+                        </div>
+
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 mb-4">
+                          <h3 className="text-red-400 text-sm font-bold mb-3 flex items-center gap-2"><AlertTriangle size={16}/> Test Preventative Flow</h3>
+                          <p className="text-white/50 text-xs mb-4 leading-relaxed">Simulate what happens when the patch predicts a critical asthma attack and attempts to auto-deploy the preventative medication.</p>
+                          <button 
+                            onClick={triggerSimulation}
+                            className="w-full py-3.5 bg-red-600/20 text-red-400 border border-red-500/30 rounded-xl text-sm font-bold flex justify-center items-center gap-2 hover:bg-red-500/30 transition-colors"
+                          >
+                            Simulate Attack Sequence
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {tab === "symptoms" && (
+                      <div className="space-y-4 pt-2">
+                        <div className="flex justify-between items-center mb-4 px-1">
+                          <h2 className="text-white font-bold text-lg">Symptom History</h2>
+                          <button onClick={() => setShowLogger(true)} className="flex items-center gap-1 text-emerald-400 text-xs font-bold bg-emerald-500/20 px-3 py-1.5 rounded-lg hover:bg-emerald-500/30 transition-colors">
+                            <Plus size={14} /> New Entry
+                          </button>
+                        </div>
+                        
+                        {patient.symptomLogs.length === 0 ? (
+                          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+                            <ClipboardList size={32} className="text-white/20 mx-auto mb-3" />
+                            <p className="text-white/50 text-sm">No symptoms logged yet.</p>
+                          </div>
+                        ) : (
+                          patient.symptomLogs.map(log => (
+                            <div key={log.id} className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                              <div className="flex justify-between items-start mb-3">
+                                <div className="text-white/50 text-xs font-medium">{log.date}</div>
+                                <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                                  log.severity === 'severe' ? 'bg-red-500/20 text-red-400' :
+                                  log.severity === 'moderate' ? 'bg-amber-500/20 text-amber-400' :
+                                  'bg-emerald-500/20 text-emerald-400'
+                                }`}>
+                                  {log.severity}
+                                </span>
+                              </div>
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                {log.symptoms.map(sym => (
+                                  <span key={sym} className="px-2.5 py-1 bg-white/10 text-white/80 text-xs rounded-lg">
+                                    {sym}
+                                  </span>
+                                ))}
+                              </div>
+                              {log.notes && (
+                                <p className="text-white/60 text-xs leading-relaxed border-t border-white/10 pt-3 mt-1">
+                                  "{log.notes}"
+                                </p>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+
+                    {tab === "alerts" && (
+                      <div className="space-y-3 pt-2">
+                        <h2 className="text-white font-bold text-lg mb-4 px-1">Recent Notifications</h2>
+                        {patient.alerts.map(a => (
+                          <div key={a.id} className={`p-4 rounded-2xl border backdrop-blur-sm ${
+                            a.type === 'danger' ? 'bg-red-500/10 border-red-500/30' : 
+                            a.type === 'warn' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-white/5 border-white/10'
+                          }`}>
+                            <div className="flex gap-3">
+                              <div className={`mt-0.5 ${a.type === 'danger' ? 'text-red-400' : a.type === 'warn' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                                {a.icon}
+                              </div>
+                              <div>
+                                <h4 className="text-white font-bold text-sm">{a.title}</h4>
+                                <div className="text-white/40 text-xs font-medium my-1">{a.time}</div>
+                                <p className="text-white/70 text-xs leading-relaxed mt-2">{a.detail}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {tab === "plan" && (
+                      <div className="space-y-3 pt-2 pb-12">
+                        <h2 className="text-white font-bold text-lg mb-4 px-1">Asthma Care Plan</h2>
+                        {[
+                          { ic: Home, t: "Stay indoors today", b: "PM2.5 is elevated. Outdoor activity increases wheeze risk significantly." },
+                          { ic: Activity, t: "Monitor symptoms", b: "Your patch delivered a preventative dose, but keep your rescue inhaler ready just in case." },
+                          { ic: Droplets, t: "Manage humidity", b: "High humidity can trigger inflammation. Keep windows closed." },
+                          { ic: Wind, t: "Wear an N95 mask", b: "If you must go outside, an N95 mask will filter out the high PM2.5 particles." },
+                          { ic: Thermometer, t: "Avoid cold air", b: "Sudden temperature drops can trigger bronchospasms. Keep warm." }
+                        ].map((t, i) => (
+                          <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex gap-4">
+                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                              <t.ic size={20} />
+                            </div>
+                            <div>
+                              <h4 className="text-white font-bold text-sm mb-1">{t.t}</h4>
+                              <p className="text-white/60 text-xs leading-relaxed">{t.b}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </FadeIn>
+                </div>
+
+                <div className="absolute bottom-0 left-0 right-0 bg-emerald-950/95 backdrop-blur-xl border-t border-white/10 px-6 py-4 pb-8 sm:pb-6 z-20">
+                  <div className="flex justify-between items-center mx-auto">
+                    {[
+                      { id: "home", icon: Home, label: "Home" },
+                      { id: "symptoms", icon: ClipboardList, label: "Symptoms" },
+                      { id: "alerts", icon: Bell, label: "Alerts" },
+                      { id: "plan", icon: Info, label: "Care Plan" }
+                    ].map(n => (
+                      <button 
+                        key={n.id} 
+                        onClick={() => setTab(n.id)}
+                        className={`flex flex-col items-center gap-1.5 transition-colors w-16 ${tab === n.id ? 'text-emerald-400' : 'text-white/40'}`}
+                      >
+                        <div className={`p-2 rounded-xl transition-all duration-300 ${tab === n.id ? 'bg-emerald-500/20' : 'bg-transparent'}`}>
+                          <n.icon size={22} />
+                        </div>
+                        <span className="text-[10px] font-bold tracking-wide">{n.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {showLogger && <SymptomLogger onClose={() => setShowLogger(false)} onSave={handleSaveSymptom} />}
+                
+                {showCaregiverManager && <CaregiverManagerModal patient={patient} onClose={() => setShowCaregiverManager(false)} onSave={handleUpdateCaregivers} />}
+
+                {impendingDeployment && (
+                  <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-xl z-[100] flex flex-col items-center justify-center p-6 animate-fade-in">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/40 via-transparent to-transparent opacity-60"></div>
+                    
+                    <div className="relative z-10 flex flex-col items-center w-full">
+                      <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse border border-red-500/30">
+                        <ShieldAlert size={48} className="text-red-500" />
+                      </div>
+                      
+                      <h2 className="text-white text-3xl font-extrabold text-center mb-3">Predictive Warning</h2>
+                      <p className="text-red-200/80 text-center text-sm mb-8 max-w-[250px] leading-relaxed">
+                        Attack probability is 73%. Preparing to auto-administer preventative Tulobuterol 2mg.
+                      </p>
+                      
+                      <div className="text-8xl font-black text-white mb-12 tracking-tighter tabular-nums drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                        00:{countdown.toString().padStart(2, '0')}
+                      </div>
+
+                      <div className="w-full space-y-4">
+                        <button onClick={handleCancelDeploy} className="w-full py-4 bg-slate-800 border border-slate-700 text-white rounded-2xl font-bold text-base hover:bg-slate-700 transition-colors shadow-lg active:scale-[0.98]">
+                          Cancel (I have my inhaler)
+                        </button>
+                        <button onClick={handleDeploy} className="w-full py-4 bg-red-600 text-white rounded-2xl font-bold text-base hover:bg-red-700 transition-colors shadow-lg shadow-red-900/50 active:scale-[0.98]">
+                          Deploy Now
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {callContact && <CallModal contact={callContact} onClose={() => setCallContact(null)} />}
+              </div>
+            </div>
+          );
+        }
+
+ function NoteModal({ onClose, onSave, patientName }) {
+          const [text, setText] = useState("");
+          return (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fade-in" onClick={onClose} style={{ animationDuration: '0.2s' }}>
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-fade-in flex flex-col" style={{ animationDelay: '0.1s' }} onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center mb-6">
+                  <div><h3 className="text-xl font-bold text-white">Add Clinical Note</h3><p className="text-sm text-slate-400 mt-1">For {patientName}</p></div>
+                  <button onClick={onClose} className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-full transition-colors"><LogOut size={16} /></button>
+                </div>
+                <textarea autoFocus value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter consultation details, observations, or action plan..." className="w-full bg-slate-950 border border-slate-800 text-white rounded-2xl p-4 min-h-[160px] mb-6 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none placeholder:text-slate-600 font-medium" />
+                <div className="flex gap-3 mt-auto">
+                  <button onClick={onClose} className="flex-1 py-3 bg-slate-800 text-slate-300 rounded-xl font-bold hover:bg-slate-700 transition-colors border border-slate-700">Cancel</button>
+                  <button onClick={() => text.trim() && onSave(text.trim())} disabled={!text.trim()} className="flex-1 py-3 bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl font-bold hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-900/20">Save Note</button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AirSenseApp />);
+    </script>
+</body>
+</html>
